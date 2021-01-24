@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import android.widget.RelativeLayout;
 
 import androidx.core.content.ContextCompat;
 
+import com.dushuge.controller.model.AdMediaBean;
 import com.gyf.immersionbar.BarHide;
 import com.gyf.immersionbar.ImmersionBar;
 import com.umeng.socialize.UMShareAPI;
@@ -210,11 +212,14 @@ public class ReadActivity extends BaseReadActivity {
         }
         // 获取页面加载器
         mPageLoader = mPvPage.getPageLoader(activity, baseBook, getIntent().getLongExtra("mark_id", 0));
+        Log.e("JHTAG","initData #1");
+        initListener();
         // 广告
+        Log.e("JHTAG","initData #2");
         adInit(true);
         // 打开界面
         adDataInitComplete();
-        initListener();
+
     }
 
     @Override
@@ -240,6 +245,7 @@ public class ReadActivity extends BaseReadActivity {
      * @param isFirstOpenBook
      */
     public void adInit(boolean isFirstOpenBook) {
+        Log.e("JHTAG","adInit #1");
         // 底部广告
         if (getIsReadBottomAd(activity)) {
             frameLayoutButton = activity_read_buttom_ad_layout;
@@ -285,7 +291,8 @@ public class ReadActivity extends BaseReadActivity {
                 if (getIsUseVideoAd(activity)) {
                     CloseAdEnd();
                 }
-                mPvPage.setADview(insert_todayone2);
+                Log.e("JHTAG","adInit #2");
+                mPvPage.setADview(insert_todayone2,getAdMediaBean());
             }
 
         } else {
@@ -302,8 +309,12 @@ public class ReadActivity extends BaseReadActivity {
             }
         }
     }
-
+    private AdMediaBean getAdMediaBean(){
+        AdMediaBean bean = new AdMediaBean(1,1,1);
+        return bean;
+    }
     protected void initListener() {
+        Log.e("JHTAG","initListener");
         mPvPage.setTouchListener(ReadActivity.this, new PageView.TouchListener() {
             @Override
             public boolean onTouch() {

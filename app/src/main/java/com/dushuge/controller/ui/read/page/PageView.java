@@ -5,18 +5,22 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
 
+import com.analytics.sdk.client.feedlist.AdView;
 import com.bytedance.sdk.openadsdk.TTNativeExpressAd;
 import com.dushuge.controller.R;
 import com.dushuge.controller.constant.Constant;
+import com.dushuge.controller.model.AdMediaBean;
 import com.dushuge.controller.model.BaseAd;
 import com.dushuge.controller.model.Book;
 import com.dushuge.controller.model.BookChapter;
 
+import com.dushuge.controller.ui.bwad.JHAdShow;
 import com.dushuge.controller.ui.bwad.TTAdShow;
 import com.dushuge.controller.ui.bwad.ViewToBitmapUtil;
 import com.dushuge.controller.ui.read.ReadActivity;
@@ -78,9 +82,11 @@ public class PageView extends View {
     private FrameLayout ADview;
     public BitmapCache bitmapCache;
     private TTAdShow ttAdShow;
-
-    public void setADview(FrameLayout ADview) {
+    private AdMediaBean adMediaBean;
+    public void setADview(FrameLayout ADview,AdMediaBean bean) {
+        Log.e("JHTAG","setADview #1");
         this.ADview = ADview;
+        this.adMediaBean = bean;
         if (mPageAnim != null) {
             mPageAnim.ADview = ADview;
             mPageAnim.mPageLoader = mPageLoader;
@@ -88,9 +94,19 @@ public class PageView extends View {
         if (ttAdShow == null) {
             ttAdShow = new TTAdShow();
         }
-        if (baseAd != null && baseAd.ad_type != 1) {
-            ttAdShow.bindAdListener(mPageLoader, mActivity, ADview, baseAd, null);
+
+        if(bean!=null && bean.getMedia_type() == 1){
+            ttAdShow = new JHAdShow();
+            Log.e("JHTAG","setADview #2");
+        }else{
+            ttAdShow = new TTAdShow();
+            Log.e("JHTAG","setADview #3");
         }
+        if (baseAd != null && baseAd.ad_type != 1) {
+            Log.e("JHTAG","setADview #4");
+                ttAdShow.bindAdListener(mPageLoader, mActivity, ADview, baseAd, null);
+        }
+        Log.e("JHTAG","setADview #5");
     }
 
     // 动画监听类
@@ -510,6 +526,7 @@ public class PageView extends View {
     }
 
     public void setTouchListener(ReadActivity activity, TouchListener mTouchListener) {
+        Log.e("JHTAG","setTouchListener");
         this.mActivity = activity;
         this.mTouchListener = mTouchListener;
     }

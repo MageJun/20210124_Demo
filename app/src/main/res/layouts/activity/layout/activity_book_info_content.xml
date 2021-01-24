@@ -170,7 +170,7 @@
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
-                android:layout_toLeftOf="@id/activity_Book_info_content_last_chapter_time_layout"
+                android:layout_toLeftOf="@+id/activity_Book_info_content_last_chapter_time_layout"
                 android:layout_toRightOf="@id/category"
                 android:ellipsize="end"
                 android:gravity="center_vertical"

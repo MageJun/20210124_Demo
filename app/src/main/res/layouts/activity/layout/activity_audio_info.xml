@@ -404,7 +404,7 @@
                         android:layout_marginBottom="5dp"
                         app:stl_clickable="true"
                         app:stl_customTabTextLayoutId="@layout/item_tablayout_option"
-                        app:stl_customTabTextViewId="@id/item_tablayout_text"
+                        app:stl_customTabTextViewId="@+id/item_tablayout_text"
                         app:stl_defaultTabBackground="@color/transparent"
                         app:stl_defaultTabTextAllCaps="false"
                         app:stl_defaultTabTextColor="@color/gray_b0"

@@ -17,6 +17,8 @@ import androidx.fragment.app.FragmentActivity;
 import com.alibaba.sdk.android.push.CloudPushService;
 import com.alibaba.sdk.android.push.CommonCallback;
 import com.alibaba.sdk.android.push.noonesdk.PushServiceFactory;
+import com.analytics.sdk.client.AdClientContext;
+import com.analytics.sdk.client.SdkConfiguration;
 import com.iflytek.cloud.SpeechUtility;
 import com.lzx.starrysky.StarrySky;
 import com.lzx.starrysky.StarrySkyBuilder;
@@ -118,6 +120,10 @@ public class BWNApplication extends Application {
         // 广告
         if (USE_AD_FINAL) {
             TTAdManagerHolder.init(this);
+            String processName = getProcessName(this);
+            if (BuildConfig.APPLICATION_ID.equals(processName)) {
+                AdClientContext.init(this, "");
+            }
         }
     }
 

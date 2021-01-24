@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -17,6 +18,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 
+import com.analytics.sdk.client.AdController;
+import com.analytics.sdk.client.AdError;
+import com.analytics.sdk.client.AdRequest;
+import com.analytics.sdk.client.splash.SplashAdExtListener;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
@@ -25,6 +30,7 @@ import com.bytedance.sdk.openadsdk.TTAdConstant;
 import com.bytedance.sdk.openadsdk.TTAdNative;
 import com.bytedance.sdk.openadsdk.TTAppDownloadListener;
 import com.bytedance.sdk.openadsdk.TTSplashAd;
+import com.dushuge.controller.model.AdMediaBean;
 import com.github.dfqin.grantor.PermissionListener;
 import com.github.dfqin.grantor.PermissionsUtil;
 import com.gyf.immersionbar.BarHide;
@@ -84,9 +90,13 @@ public class SplashActivity extends FragmentActivity implements BaseInterface {
     private int time = 6;
     // 界面是否已经跳转
     private boolean isJump = false;
+
+    private boolean canJump = false;
     // 广告
     private TTAdNative mTTAdNative;
     private final int AD_TIME_OUT = 3000;
+    
+    private AdMediaBean adMediaBean;
 
     @OnClick({R.id.activity_home_viewpager_sex_next, R.id.activity_splash_im})
     public void onClick(View v) {
@@ -127,6 +137,7 @@ public class SplashActivity extends FragmentActivity implements BaseInterface {
         ButterKnife.bind(this);
         ImmersionBar.with(activity).hideBar(BarHide.FLAG_HIDE_BAR).init();
         EventBus.getDefault().register(this);
+        adMediaBean = getAdMediaBean();
         initView();
     }
 
@@ -306,6 +317,7 @@ public class SplashActivity extends FragmentActivity implements BaseInterface {
     };
 
     private void gotoMainActivity() {
+        Log.e(JUTAG,"gotoMainActivity");
         if (isJump) {
             return;
         }
@@ -365,10 +377,6 @@ public class SplashActivity extends FragmentActivity implements BaseInterface {
                     activity_home_viewpager_sex_next.setVisibility(View.GONE);
                     // 穿山甲广告
                     if (!TextUtils.isEmpty(startpage.ad_android_key) && InternetUtils.internet(activity)) {
-                        mTTAdNative = TTAdManagerHolder.get().createAdNative(activity);
-                        handler.removeMessages(0);
-                        handler.removeMessages(3);
-                        handler.sendEmptyMessageDelayed(3, 5000);
                         loadSplashAd(startpage.ad_android_key);
                     } else {
                         gotoMainActivity();
@@ -389,6 +397,78 @@ public class SplashActivity extends FragmentActivity implements BaseInterface {
      * @param adKey
      */
     private void loadSplashAd(String adKey) {
+        Log.e(JUTAG,"loadSplashAd");
+        handler.removeMessages(0);
+        handler.removeMessages(3);
+        handler.sendEmptyMessageDelayed(3, 5000);
+        if(adMediaBean!=null){
+            if(adMediaBean.getMedia_type() == 1){
+                loadJHAd(adKey);
+            }else if(adMediaBean.getMedia_type() == 2){
+                loadTTAd(adKey);
+            }
+        }else{
+            gotoMainActivity();
+        }
+    }
+    private String JUTAG = "JUHTAG";
+    private void loadJHAd(String adKey){
+        Log.e(JUTAG,"loadJHAd");
+        activity_splash_layout.removeAllViews();
+        AdRequest adRequest = new AdRequest.Builder(this)
+                .setCodeId("D2110001")
+                .setAdContainer(activity_splash_layout)
+                .build();
+        adRequest.loadSplashAd(new SplashAdExtListener() {
+            @Override
+            public void onAdTick(long l) {
+                Log.e(JUTAG,"onAdTick");
+            }
+
+            @Override
+            public void onAdSkip() {
+                Log.e(JUTAG,"onAdSkip");
+            }
+
+            @Override
+            public void onAdLoaded(AdController adController) {
+                Log.e(JUTAG,"onAdLoaded");
+                handler.removeMessages(3);
+            }
+
+            @Override
+            public void onAdError(AdError adError) {
+                Log.e(JUTAG,"onAdError");
+            }
+
+            @Override
+            public void onAdClicked() {
+                Log.e(JUTAG,"onAdClicked");
+            }
+
+            @Override
+            public void onAdShow() {
+                Log.e(JUTAG,"onAdShow");
+            }
+
+            @Override
+            public void onAdExposure() {
+                Log.e(JUTAG,"onAdExposure");
+            }
+
+            @Override
+            public void onAdDismissed() {
+                Log.e(JUTAG,"onAdDismissed");
+                if(canJump){
+                    gotoMainActivity();
+                }
+                canJump = true;
+            }
+        });
+    }
+
+    private void loadTTAd(String adKey){
+        mTTAdNative = TTAdManagerHolder.get().createAdNative(activity);
         //step3:创建开屏广告请求参数AdSlot,具体参数含义参考文档
         AdSlot adSlot = new AdSlot.Builder()
                 .setCodeId(adKey)
@@ -494,6 +574,7 @@ public class SplashActivity extends FragmentActivity implements BaseInterface {
         }, AD_TIME_OUT);
     }
 
+
     @Override
     public void finish() {
         super.finish();
@@ -502,5 +583,26 @@ public class SplashActivity extends FragmentActivity implements BaseInterface {
             //关闭窗体动画显示
             this.overridePendingTransition(0, R.anim.activity_alpha_close);
         }
+    }
+
+    private AdMediaBean getAdMediaBean(){
+        Log.e(JUTAG,"getAdMediaBean");
+        AdMediaBean bean = new AdMediaBean(1,1,1);
+        return bean;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(canJump){
+            gotoMainActivity();
+        }
+        canJump = true;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        canJump = false;
     }
 }

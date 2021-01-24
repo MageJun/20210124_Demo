@@ -195,6 +195,10 @@ dependencies {
     implementation files('libs/Msc.jar')
 //穿山甲
     implementation(name: 'open_ad_sdk', ext: 'aar')
+    //聚合SDK
+    implementation(name: 'juhe_ad_sdk_v64' ,ext:'aar')
+
+    implementation(name:'GDTSDK.unionNormal.4.232.1102',ext:'aar')
 //自动阅读节点控制进度条
     implementation 'com.github.warkiz.widget:indicatorseekbar:2.1.2'
 }

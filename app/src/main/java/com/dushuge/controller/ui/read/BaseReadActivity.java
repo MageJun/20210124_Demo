@@ -18,6 +18,7 @@ import android.widget.FrameLayout;
 import androidx.fragment.app.FragmentActivity;
 
 import com.bumptech.glide.Glide;
+import com.dushuge.controller.model.AdMediaBean;
 import com.umeng.analytics.MobclickAgent;
 import com.dushuge.controller.R;
 import com.dushuge.controller.base.BWNApplication;

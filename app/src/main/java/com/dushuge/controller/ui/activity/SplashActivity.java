@@ -416,7 +416,7 @@ public class SplashActivity extends FragmentActivity implements BaseInterface {
         Log.e(JUTAG,"loadJHAd");
         activity_splash_layout.removeAllViews();
         AdRequest adRequest = new AdRequest.Builder(this)
-                .setCodeId("D2110001")
+                .setCodeId(adMediaBean.getPosition_id())
                 .setAdContainer(activity_splash_layout)
                 .build();
         adRequest.loadSplashAd(new SplashAdExtListener() {
@@ -588,6 +588,7 @@ public class SplashActivity extends FragmentActivity implements BaseInterface {
     private AdMediaBean getAdMediaBean(){
         Log.e(JUTAG,"getAdMediaBean");
         AdMediaBean bean = new AdMediaBean(1,1,1);
+        bean.setPosition_id("D2110001");
         return bean;
     }
 

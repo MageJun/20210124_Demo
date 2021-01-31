@@ -370,4 +370,7 @@ public class Api {
     public static final String SHELF_RECOMMEND = "/novel/shelf-recommend";
     //作品分享接口
     public static final String NOVEL_SHARE = "/novel/share-novel";
+
+    //广告配置
+    public static final String AD_CONFIGS = "/admessage";
 }

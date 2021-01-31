@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
 
-import com.analytics.sdk.client.feedlist.AdView;
 import com.bytedance.sdk.openadsdk.TTNativeExpressAd;
 import com.dushuge.controller.R;
 import com.dushuge.controller.constant.Constant;
@@ -83,7 +82,7 @@ public class PageView extends View {
     public BitmapCache bitmapCache;
     private TTAdShow ttAdShow;
     private AdMediaBean adMediaBean;
-    public void setADview(FrameLayout ADview,AdMediaBean bean) {
+    public void setADview(FrameLayout ADview, AdMediaBean bean) {
         Log.e("JHTAG","setADview #1");
         this.ADview = ADview;
         this.adMediaBean = bean;
@@ -97,6 +96,7 @@ public class PageView extends View {
 
         if(bean!=null && bean.getMedia_type() == 1){
             ttAdShow = new JHAdShow();
+            baseAd.setAd_android_key(adMediaBean.getPosition_id());
             Log.e("JHTAG","setADview #2");
         }else{
             ttAdShow = new TTAdShow();

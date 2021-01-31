@@ -311,6 +311,7 @@ public class ReadActivity extends BaseReadActivity {
     }
     private AdMediaBean getAdMediaBean(){
         AdMediaBean bean = new AdMediaBean(1,1,1);
+        bean.setPosition_id("D2110024");
         return bean;
     }
     protected void initListener() {

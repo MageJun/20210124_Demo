@@ -1,13 +1,19 @@
 package com.dushuge.controller.model;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.dushuge.controller.R;
+import com.dushuge.controller.constant.Api;
 import com.dushuge.controller.constant.Constant;
+import com.dushuge.controller.net.HttpUtils;
+import com.dushuge.controller.net.ReaderParams;
+import com.dushuge.controller.ui.bwad.JHAdShow;
 import com.dushuge.controller.ui.bwad.TTAdShow;
 import com.dushuge.controller.ui.bwad.WebAdshow;
 import com.dushuge.controller.ui.utils.ImageUtil;
@@ -105,6 +111,36 @@ public class BaseAd {
         this.ad_type = ad_type;
     }
 
+    private void loadAdConfigs(Activity context, HttpUtils.ResponseListener listener){
+            ReaderParams readerParams = new ReaderParams(context);
+            readerParams.putExtraParams("media_type",1);
+            readerParams.putExtraParams("media_position", 1);
+            readerParams.putExtraParams("position",5);
+            HttpUtils.getInstance().sendRequestRequestParams(context, Api.AD_CONFIGS, readerParams.generateParamsJson(), new HttpUtils.ResponseListener() {
+                @Override
+                public void onResponse(String response) {
+                    Log.e("JHTAG","response = "+response);
+                    if(listener!=null){
+                        listener.onResponse(response);
+                    }
+                }
+
+                @Override
+                public void onErrorResponse(String ex) {
+                    Log.e("JHTAG","onErrorResponse = "+ex);
+                }
+            });
+    }
+
+    /**
+     * 测试
+     * @return
+     */
+    private AdMediaBean getAdMediaBean(){
+        AdMediaBean bean = new AdMediaBean(1,1,1);
+        bean.setPosition_id("D2110010");
+        return bean;
+    }
     /**
      * 设置广告
      *
@@ -115,6 +151,9 @@ public class BaseAd {
      */
     public void setAd(Activity activity, FrameLayout frameLayout, int flag) {
         MyToash.Log("TTAdShow", flag + "  " + this.toString());
+        //TODO 测试
+        AdMediaBean adMediaBean = getAdMediaBean();
+
         ViewGroup.LayoutParams layoutParams = frameLayout.getLayoutParams();
         int W20 = ImageUtil.dp2px(activity, 20);
         int W30 = ImageUtil.dp2px(activity, 30);
@@ -157,7 +196,6 @@ public class BaseAd {
             layoutParams.height = height;
             frameLayout.setLayoutParams(layoutParams);
         }
-        TTAdShow ttAdShow = null;
         if (ad_type == 1) {
             setAd_height(height);
             setAd_width(width);
@@ -169,8 +207,15 @@ public class BaseAd {
             setAd_height(ImageUtil.px2dip(activity, height));
             setAd_width(ImageUtil.px2dip(activity, width));
             if (flag != 0) {
+                TTAdShow ttAdShow = null;
+
                 if (ttAdShow == null) {
-                    ttAdShow = new TTAdShow(activity, flag, this);
+                    if(adMediaBean!=null && adMediaBean.getMedia_type()==1){
+                        ttAdShow = new JHAdShow(activity, flag, BaseAd.this);
+                        this.setAd_android_key(adMediaBean.getPosition_id());
+                    }else{
+                        ttAdShow = new TTAdShow(activity, flag, this);
+                    }
                 }
                 if (flag != 3) {
                     frameLayout.removeAllViews();

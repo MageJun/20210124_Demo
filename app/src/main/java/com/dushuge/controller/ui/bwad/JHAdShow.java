@@ -1,16 +1,24 @@
 package com.dushuge.controller.ui.bwad;
 
 import android.app.Activity;
+import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.analytics.sdk.client.AdError;
 import com.analytics.sdk.client.AdRequest;
+import com.analytics.sdk.client.NativeAdData;
+import com.analytics.sdk.client.NativeAdListener;
 import com.analytics.sdk.client.feedlist.AdSize;
 import com.analytics.sdk.client.feedlist.AdView;
 import com.analytics.sdk.client.feedlist.FeedListAdListener;
+import com.analytics.sdk.client.feedlist.FeedListNativeAdListener;
 import com.bytedance.sdk.openadsdk.AdSlot;
 import com.bytedance.sdk.openadsdk.TTAdConstant;
 import com.bytedance.sdk.openadsdk.TTAdDislike;
@@ -20,6 +28,8 @@ import com.bytedance.sdk.openadsdk.TTNativeExpressAd;
 import com.bytedance.sdk.openadsdk.TTRewardVideoAd;
 import com.dushuge.controller.model.BaseAd;
 import com.dushuge.controller.ui.read.page.PageLoader;
+import com.dushuge.controller.ui.utils.ImageUtil;
+import com.dushuge.controller.ui.utils.MyGlide;
 import com.dushuge.controller.ui.utils.MyToash;
 import com.dushuge.controller.utils.ShareUitls;
 
@@ -36,7 +46,7 @@ public class JHAdShow extends TTAdShow{
     private FrameLayout frameLayoutToday;
     private BaseAd.GetttAdShowBitamp getttAdShowBitamp;
 
-    public void getTodayOneBanner(final FrameLayout frameLayoutToday, BaseAd.GetttAdShowBitamp getttAdShowBitamp) {
+    public void getTodayOneBanner(final FrameLayout frameLayoutToday, BaseAd.GetttAdShowBitamp getttAdShowBitamp,String slodId) {
         if (getttAdShowBitamp != null) {
             this.getttAdShowBitamp = getttAdShowBitamp;
         }
@@ -45,14 +55,15 @@ public class JHAdShow extends TTAdShow{
 
     public void getTodayOneBanner(final FrameLayout frameLayoutToday) {
         this.frameLayoutToday = frameLayoutToday;
-        if (mTTAdNative == null) {
-            mTTAdNative = TTAdManagerHolder.get().createAdNative(activity);
-        }
-        if (flag != 3) {
-            loadTodayOneBannerAdXINXILIU();
-        } else {
-            loadBannerAd();
-        }
+//        if (mTTAdNative == null) {
+//            mTTAdNative = TTAdManagerHolder.get().createAdNative(activity);
+//        }
+//        if (flag != 3) {
+//            loadTodayOneBannerAdXINXILIU();
+//        } else {
+//            loadBannerAd();
+//        }
+        loadJHBannerAd(frameLayoutToday,frameLayoutToday.getContext(),baseAd.ad_android_key);
     }
 
     /**
@@ -215,7 +226,7 @@ public class JHAdShow extends TTAdShow{
         AdSize adSize = new AdSize(AdSize.FULL_WIDTH, AdSize.AUTO_HEIGHT); // 消息流中用AUTO_HEIGHT
         Log.e(JHTAG,"bindAdListener #1 activity = "+activity);
        AdRequest adRequest = new AdRequest.Builder(activity)
-               .setCodeId("D2110024")
+               .setCodeId(baseAd.ad_android_key)
                .setAdRequestCount(1)
                .setAdSize(adSize)
                .build();
@@ -333,7 +344,90 @@ public class JHAdShow extends TTAdShow{
         void OnRewardVerify();
     }
 
+    private void loadJHBannerAd(ViewGroup adcontainer, Context context,String codid){
+        AdRequest adRequest = new AdRequest.Builder(context)
+                .setCodeId(codid)
+                .setAdRequestCount(1)
+                .build();
+        adRequest.loadFeedListNativeAd(new FeedListNativeAdListener() {
+            @Override
+            public void onAdLoaded(List<NativeAdData> list) {
+                Log.e(JHTAG,"onAdLoaded");
+                if(list!=null && list.size()>0){
+                   View result = bindJHAd(list.get(0),context);
+                   if(result!=null){
+                       frameLayoutToday.removeAllViews();
+                       frameLayoutToday.addView(result);
+                   }
+                }
+            }
+
+            @Override
+            public void onAdError(AdError adError) {
+                MyToash.Log(JHTAG, "onAdError  " + adError.getErrorCode() + "  " + adError.getErrorMessage());
+            }
+        });
+    }
+
+    private View bindJHAd(NativeAdData adData,Context context){
+        Log.e(JHTAG,"bindJHAd");
+        if(adData!=null){
+            LinearLayout adGroup = new LinearLayout(context);
+            adGroup.setOrientation(LinearLayout.HORIZONTAL);
+            ImageView imageView = new ImageView(context);
+            LinearLayout.LayoutParams imgParams = new LinearLayout.LayoutParams(this.frameLayoutToday.getHeight(),this.frameLayoutToday.getHeight());
+            ViewGroup.MarginLayoutParams imgMarparams = new ViewGroup.MarginLayoutParams(imgParams);
+            int margin = ImageUtil.dp2px(context,2);
+            imgMarparams.setMargins(margin,margin,margin,margin);
+            adGroup.addView(imageView,imgMarparams);
+            LinearLayout infoGroup = new LinearLayout(context);
+            infoGroup.setOrientation(LinearLayout.VERTICAL);
+            LinearLayout.LayoutParams infoParams = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT);
+            infoParams.weight = 1;
+
+            TextView titleView = new TextView(context);
+            TextView descView = new TextView(context);
+            descView.setSingleLine();
+            LinearLayout.LayoutParams infoChildParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,0);
+            infoChildParams.weight = 1;
+            infoGroup.addView(titleView,infoChildParams);
+            infoGroup.addView(descView,infoChildParams);
+            titleView.setText(adData.getTitle());
+            descView.setText(adData.getDesc());
+            adGroup.addView(infoGroup,infoParams);
+
+            FrameLayout.LayoutParams adlogoParams = new FrameLayout.LayoutParams(0,0);
+            adData.attach(activity);
+            List<View> clickViews = new ArrayList<>();
+            clickViews.add(imageView);
+            clickViews.add(titleView);
+            clickViews.add(descView);
+            View result = adData.bindView(adGroup, null, adlogoParams, clickViews, new NativeAdListener() {
+                @Override
+                public void onADExposed() {
+                    Log.e(JHTAG,"onADExposed");
+                }
+
+                @Override
+                public void onADClicked() {
+                    Log.e(JHTAG,"onADClicked");
+                    adClick(activity, baseAd, flag, null);
+                }
+
+                @Override
+                public void onAdError(AdError adError) {
+
+                }
+            });
+            MyGlide.GlideImage(activity,adData.getImageUrl(),imageView);
+            return result;
+
+        }
+        return null;
+    }
     private void loadBannerAd() {
+
+
         //step4:创建广告请求参数AdSlot,具体参数含义参考文档
         AdSlot adSlot = new AdSlot.Builder()
                 .setCodeId(daimaweiID) //广告位id

@@ -120,7 +120,7 @@ dependencies {
 // implementation 'com.umeng.umsdk:common:2.0.0'
 //    implementation  'com.umeng.umsdk:common:9.3.3' // (必选)版本号
 //    implementation  'com.umeng.umsdk:asms:1.1.4' // asms包依赖(必选)
-//    implementation(name: 'umeng-common-9.3.3', ext: 'jar')
+    implementation(name: 'umeng-common-9.3.3', ext: 'jar')
     implementation(name: 'umeng-asms-v1.1.4', ext: 'aar')
 // 阿里云推送
     implementation 'com.aliyun.ams:alicloud-android-push:3.2.3'
